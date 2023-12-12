@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.example.irrigation'
-    compileSdk 32
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.irrigation"
