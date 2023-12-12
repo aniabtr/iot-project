@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">irrigation</string>
-    <string name="select">Select Item</string>
+    <string name="selectCrop">Select Crop</string>
+    <string name="selectWaterFlow">Select Water Flow</string>
+    <string name="selectCoverageAreaType">Select Coverage Area Type</string>
+
 </resources>
