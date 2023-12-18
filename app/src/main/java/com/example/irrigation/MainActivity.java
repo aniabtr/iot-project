@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 String numberOfIrrigationWeeks = weeks.getText().toString();
 
                 // Create an Intent to start the second activity
-                Intent intent = new Intent(MainActivity.this, dashboard.class);
+                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
 
                 // Put the user input as extras in the Intent
                 intent.putExtra("SELECTED_CROP", selectedCrop);
