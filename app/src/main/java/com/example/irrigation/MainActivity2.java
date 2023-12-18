@@ -22,7 +22,9 @@ public class MainActivity2 extends AppCompatActivity {
 
         // Use the values as needed (e.g., display in TextViews, perform calculations, etc.)
         TextView textViewData = findViewById(R.id.textViewData);
-        String displayText = "Selected Crop: " + selectedCrop +
+        String displayText = "Do you want to start the irrigation with the following parameters?" +
+                "\n" +
+                "\nSelected Crop: " + selectedCrop +
                 "\nWater Flow Rate: " + waterFlowRate +
                 "\nCoverage Area Type: " + selectedCoverageAreaType +
                 "\nCoverage Area Value: " + coverageAreaValue +
