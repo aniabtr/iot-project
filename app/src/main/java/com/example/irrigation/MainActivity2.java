@@ -15,6 +15,7 @@ import java.io.IOException;
 public class MainActivity2 extends AppCompatActivity {
 
     private Button yes, cancel;
+    private String filename = "irrigationinfo.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,6 @@ public class MainActivity2 extends AppCompatActivity {
                 irrigationData.setNumberOfIrrigationWeeks(numberOfIrrigationWeeks);
 
                 // create data string
-                String filename = "irrigationinfo.txt";
                 String dataToSave =
                         irrigationData.getSelectedCrop() + "\n" +
                         irrigationData.getWaterFlowRate() + "\n" +
