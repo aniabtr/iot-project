@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -36,6 +37,25 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+    // Function to display a message when the form is empty
+    private void displayEmptyFormMessage() {
+        TextView emptyFormMessage = findViewById(R.id.message);
+        emptyFormMessage.setText("Please fill out all fields.");
+    }
+    private void displayRectangleAreaMessage() {
+        TextView emptyFormMessage = findViewById(R.id.message);
+        emptyFormMessage.setText("Cannot irrigate an area this large with Rectangle coverage and this amount of water flow.");
+    }
+    private void displayLshapeAreaMessage () {
+        TextView emptyFormMessage = findViewById(R.id.message);
+        emptyFormMessage.setText("Cannot irrigate an area this large with L-Shape coverage and this amount of water flow.");
+    }
+    private void displayMaximumCoverageAreaMessage() {
+        TextView emptyFormMessage = findViewById(R.id.message);
+        emptyFormMessage.setText("Cannot irrigate an area this large with Maximum coverage and this amount of water flow.");
+    }
+
+
     String [] crops = {"Potatoes", "Carrots", "Onions", "Peas"};
     String [] coverageAreaTypes = {"Rectangle", "L-Shape", "Maximum Coverage"};
     private Button create;
@@ -87,26 +107,69 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick( View v) {
                     // Get the user input from the form
+
                     String selectedCrop = autoCompleteTextViewCrops.getText().toString();
-                    String waterFlowRate = waterFlow.getText().toString();
+                    String waterFlowRateStr = waterFlow.getText().toString();
                     String selectedCoverageAreaType = autoCompleteTextViewCoverageAreaType.getText().toString();
-                    String coverageAreaValue = coverageArea.getText().toString();
-                    String numberOfIrrigationWeeks = weeks.getText().toString();
+                    String coverageAreaValueStr = coverageArea.getText().toString();
+                    String numberOfIrrigationWeeksStr = weeks.getText().toString();
+                    // check whether the form is empty or not
+                    if (selectedCrop.isEmpty() || waterFlowRateStr.isEmpty() || selectedCoverageAreaType.isEmpty() || coverageAreaValueStr.isEmpty() || numberOfIrrigationWeeksStr.isEmpty()) {
+                        // Display a message to the user to fill out the form
+                        displayEmptyFormMessage();
+                    } else {
+                        //if the selected area is rectangle check if its irrigation is possible
+                            if ("Rectangle".equals(selectedCoverageAreaType)) {
+                            float waterFlowRate = Float.parseFloat(waterFlowRateStr);
+                            float coverageAreaValue = Float.parseFloat(coverageAreaValueStr);
+                            float maxPossibleAreaCoverage = (float) (0.0021 * Math.pow(waterFlowRate, 2) - 0.0422 * waterFlowRate + 0.8986);
+                            if (maxPossibleAreaCoverage < coverageAreaValue) {
+                                // Display a message to the user
+                                displayRectangleAreaMessage();
+                                return; // Stop further processing
+                            }
+                        }
+                        //if the selected area is L-Shape check if its irrigation is possible
+                        if ("L-Shape".equals(selectedCoverageAreaType))
+                        {
+                            float waterFlowRate = Float.parseFloat(waterFlowRateStr);
+                            float coverageAreaValue = Float.parseFloat(coverageAreaValueStr);
+                            float maxPossibleAreaCoverage = (float) (0.022895 * Math.pow(waterFlowRate, 2) - 1.28448 * waterFlowRate + 18.6402);
+                            if (maxPossibleAreaCoverage < coverageAreaValue) {
+                                // Display a message to the user
+                                displayLshapeAreaMessage();
+                                return; // Stop further processing
+                            }
 
-                    // Create an Intent to start the second activity
-                    Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+                        }
+                        //if the selected area is Maximum Coverage check if its irrigation is possible
+                        if ("Maximum Coverage".equals(selectedCoverageAreaType)) {
+                            float waterFlowRate = Float.parseFloat(waterFlowRateStr);
+                            float coverageAreaValue = Float.parseFloat(coverageAreaValueStr);
+                            float maxPossibleAreaCoverage = (float) (0.0571679 * Math.pow(waterFlowRate, 2) - 3.20197 * waterFlowRate + 46.2867);
+                            if (maxPossibleAreaCoverage < coverageAreaValue) {
+                                // Display a message to the user
+                                displayMaximumCoverageAreaMessage();
+                                return; // Stop further processing
+                            }
+                        }
 
-                    // Put the user input as extras in the Intent
-                    intent.putExtra("SELECTED_CROP", selectedCrop);
-                    intent.putExtra("WATER_FLOW_RATE", waterFlowRate);
-                    intent.putExtra("SELECTED_COVERAGE_AREA_TYPE", selectedCoverageAreaType);
-                    intent.putExtra("COVERAGE_AREA_VALUE", coverageAreaValue);
-                    intent.putExtra("NUMBER_OF_IRRIGATION_WEEKS", numberOfIrrigationWeeks);
 
-                    // Start the second activity
-                    startActivity(intent);
+                        // Create an Intent to start the second activity
+                        Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+
+                        // Put the user input as extras in the Intent
+                        intent.putExtra("SELECTED_CROP", selectedCrop);
+                        intent.putExtra("WATER_FLOW_RATE", waterFlowRateStr);
+                        intent.putExtra("SELECTED_COVERAGE_AREA_TYPE", selectedCoverageAreaType);
+                        intent.putExtra("COVERAGE_AREA_VALUE", coverageAreaValueStr);
+                        intent.putExtra("NUMBER_OF_IRRIGATION_WEEKS", numberOfIrrigationWeeksStr);
+
+                        // Start the second activity
+                        startActivity(intent);
+                    } }
                 }
-            } );
+             );
 
 
 
