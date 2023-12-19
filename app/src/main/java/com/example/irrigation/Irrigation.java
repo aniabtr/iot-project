@@ -1,5 +1,8 @@
 package com.example.irrigation;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 public class Irrigation {
 
     private String selectedCrop;
@@ -7,6 +10,7 @@ public class Irrigation {
     private String selectedCoverageAreaType;
     private float coverageAreaValue;
     private int numberOfIrrigationWeeks;
+    private Date timestamp;
 
     // TODO constructor
 
@@ -30,6 +34,10 @@ public class Irrigation {
         return numberOfIrrigationWeeks;
     }
 
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
     public void setSelectedCrop(String selectedCrop) {
         this.selectedCrop = selectedCrop;
     }
@@ -48,6 +56,10 @@ public class Irrigation {
 
     public void setNumberOfIrrigationWeeks(int numberOfIrrigationWeeks) {
         this.numberOfIrrigationWeeks = numberOfIrrigationWeeks;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
 

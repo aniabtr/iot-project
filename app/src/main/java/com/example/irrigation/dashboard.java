@@ -15,6 +15,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class dashboard extends AppCompatActivity {
 
@@ -22,6 +27,7 @@ public class dashboard extends AppCompatActivity {
     private Button cancel;
     private TextView dataField;
     String filename = "irrigationinfo.txt";
+    private SimpleDateFormat dateFormat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,7 @@ public class dashboard extends AppCompatActivity {
             String selectedCoverageAreaType = bufferedReader.readLine();
             String coverageAreaValueStr = bufferedReader.readLine();
             String numberOfIrrigationWeeksStr = bufferedReader.readLine();
+            String timestampStr = bufferedReader.readLine();
 
             // Create Irrigation instance and set parsed values
             irrigationData = new Irrigation();
@@ -54,6 +61,14 @@ public class dashboard extends AppCompatActivity {
             irrigationData.setSelectedCoverageAreaType(selectedCoverageAreaType);
             irrigationData.setCoverageAreaValue(Float.parseFloat(coverageAreaValueStr));
             irrigationData.setNumberOfIrrigationWeeks(Integer.parseInt(numberOfIrrigationWeeksStr));
+            dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            try {
+                irrigationData.setTimestamp(dateFormat.parse(timestampStr));
+            } catch (ParseException e) {
+                e.printStackTrace();
+
+            }
+
 
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
@@ -61,13 +76,14 @@ public class dashboard extends AppCompatActivity {
 
         // Use the values as needed (e.g., display in TextViews, perform calculations, etc.)
         dataField = findViewById(R.id.textViewData);
-        String displayText = "Values received from previous activity:" +
+        String displayText = "Ongoing irrigation:" +
                 "\n" +
                 "\nSelected Crop: " + irrigationData.getSelectedCrop() +
                 "\nWater Flow Rate: " + irrigationData.getWaterFlowRate() +
                 "\nCoverage Area Type: " + irrigationData.getSelectedCoverageAreaType() +
                 "\nCoverage Area Value: " + irrigationData.getCoverageAreaValue() +
-                "\nNumber of Irrigation Weeks: " + irrigationData.getNumberOfIrrigationWeeks();
+                "\nNumber of Irrigation Weeks: " + irrigationData.getNumberOfIrrigationWeeks() +
+                "\nTimestamp: " + irrigationData.getTimestamp();
         dataField.setText(displayText);
 
         cancel = findViewById(R.id.cancelIrrigation);

@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 
 public class MainActivity2 extends AppCompatActivity {
 
@@ -58,6 +59,7 @@ public class MainActivity2 extends AppCompatActivity {
                 irrigationData.setSelectedCoverageAreaType(selectedCoverageAreaType);
                 irrigationData.setCoverageAreaValue(coverageAreaValue);
                 irrigationData.setNumberOfIrrigationWeeks(numberOfIrrigationWeeks);
+                irrigationData.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
                 // create data string
                 String dataToSave =
@@ -65,7 +67,8 @@ public class MainActivity2 extends AppCompatActivity {
                         irrigationData.getWaterFlowRate() + "\n" +
                         irrigationData.getSelectedCoverageAreaType() + "\n" +
                         irrigationData.getCoverageAreaValue() + "\n" +
-                        irrigationData.getNumberOfIrrigationWeeks();
+                        irrigationData.getNumberOfIrrigationWeeks() + "\n" +
+                        irrigationData.getTimestamp();
 
                 try {
                     // save data to file
