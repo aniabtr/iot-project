@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,9 @@ public class dashboard extends AppCompatActivity {
     private TextView dataField;
     String filename = "irrigationinfo.txt";
     private SimpleDateFormat dateFormat;
+
+    private Switch switchManualControl;
+    private Boolean switchState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,5 +111,35 @@ public class dashboard extends AppCompatActivity {
             }
         });
 
+        switchManualControl = findViewById(R.id.switchManualControl);
+        switchState = switchManualControl.isChecked();
+
+        // controls for switch
+        // switchManualControl.setTextOn("On");
+        // switchManualControl.setTextOff("Off");
+        // switchManualControl.setChecked(true);
+        // switchManualControl.setChecked(false);
+        // switchManualControl.setText("Pump is on");
+        // switchManualControl.setText("Pump is off");
+
+        // the status of switch
+        if (switchManualControl.isChecked()) {
+            switchManualControl.setText("Pump is on");
+        } else {
+            switchManualControl.setText("Pump is off");
+        }
+
+        switchManualControl.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    switchManualControl.setText("Pump is on");
+                    // TODO start irrigation, maybe with timer
+                } else {
+                    switchManualControl.setText("Pump is off");
+                    // TODO stop irrigation
+                }
+            }
+        });
     }
 }
