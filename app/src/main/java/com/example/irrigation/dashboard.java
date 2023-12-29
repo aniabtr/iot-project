@@ -31,6 +31,7 @@ public class dashboard extends AppCompatActivity {
     String filename = "irrigationinfo.txt";
     private SimpleDateFormat dateFormat;
     private Switch switchManualControl;
+    private TextView selectedCrop, waterFlowRate, coverageAreaType, coverageAreaValue, weeks, timestampCreation, timestampLastIrrigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,36 @@ public class dashboard extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        // new dashboard design
+        dataField = findViewById(R.id.textViewData);
+        selectedCrop = findViewById(R.id.textViewSelectedCrop);
+        waterFlowRate = findViewById(R.id.textViewWaterFlow);
+        coverageAreaType = findViewById(R.id.textViewCoverageAreaType);
+        coverageAreaValue = findViewById(R.id.textViewCoverageAreaValue);
+        weeks = findViewById(R.id.textViewWeeks);
+        timestampCreation = findViewById(R.id.textViewTimestampCreation);
+        timestampLastIrrigation = findViewById(R.id.textViewTimestampLastIrrigation);
+
+        String displayText;
+        displayText = "Ongoing Irrigation:";
+        dataField.setText(displayText);
+        displayText = "Selected Crop:\n" + irrigationData.getSelectedCrop();
+        selectedCrop.setText(displayText);
+        displayText = "Water Flow Rate:\n" + irrigationData.getWaterFlowRate();
+        waterFlowRate.setText(displayText);
+        displayText = "Coverage Area Type:\n" + irrigationData.getSelectedCoverageAreaType();
+        coverageAreaType.setText(displayText);
+        displayText = "Coverage Area Value:\n" + irrigationData.getCoverageAreaValue();
+        coverageAreaValue.setText(displayText);
+        displayText = "Time of Irrigation:\n" + irrigationData.getNumberOfIrrigationWeeks() + " weeks";
+        weeks.setText(displayText);
+        displayText = "Created:\n" + irrigationData.getTimestamp();
+        timestampCreation.setText(displayText);
+        displayText = "Last irrigated:\n"; // TODO
+        timestampLastIrrigation.setText(displayText);
+
+
+        /*
         // Use the values as needed (e.g., display in TextViews, perform calculations, etc.)
         dataField = findViewById(R.id.textViewData);
         String displayText = "Ongoing irrigation:" +
@@ -88,6 +119,7 @@ public class dashboard extends AppCompatActivity {
                 "\nNumber of Irrigation Weeks: " + irrigationData.getNumberOfIrrigationWeeks() +
                 "\nTimestamp: " + irrigationData.getTimestamp();
         dataField.setText(displayText);
+        */
 
         cancel = findViewById(R.id.cancelIrrigation);
         cancel.setOnClickListener( new View.OnClickListener() {
