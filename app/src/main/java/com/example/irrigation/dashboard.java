@@ -30,9 +30,7 @@ public class dashboard extends AppCompatActivity {
     private TextView dataField;
     String filename = "irrigationinfo.txt";
     private SimpleDateFormat dateFormat;
-
     private Switch switchManualControl;
-    private Boolean switchState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +110,6 @@ public class dashboard extends AppCompatActivity {
         });
 
         switchManualControl = findViewById(R.id.switchManualControl);
-        switchState = switchManualControl.isChecked();
 
         // controls for switch
         // switchManualControl.setTextOn("On");
