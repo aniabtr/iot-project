@@ -23,7 +23,7 @@ import java.io.OutputStreamWriter;
 
 public class MainActivity extends AppCompatActivity {
 
-
+//test
     private boolean isFileEmpty() {
         try {
             FileInputStream fis = openFileInput("irrigationinfo.txt");
