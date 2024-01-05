@@ -47,7 +47,7 @@ public class MainActivity2 extends AppCompatActivity {
         textViewData.setText(displayText);
 
         yes = findViewById(R.id.yesButton);
-        cancel = findViewById(R.id.cancelBbutton);
+        cancel = findViewById(R.id.cancelButton);
 
         yes.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -76,7 +76,10 @@ public class MainActivity2 extends AppCompatActivity {
                     fos.write(dataToSave.getBytes());
                     fos.close();
 
-                    // Transition to dashboard after saving
+                    // schedule daily irrigation using scheduler
+                    IrrigationScheduler.scheduleDailyIrrigation(MainActivity2.this);
+
+                    // transition to dashboard after saving
                     Intent intent = new Intent(MainActivity2.this, dashboard.class);
                     startActivity(intent);
 
