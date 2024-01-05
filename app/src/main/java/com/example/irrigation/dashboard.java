@@ -45,6 +45,8 @@ public class dashboard extends AppCompatActivity {
     private boolean piFailure = false;
     private boolean isInternalChange = false;
 
+    private static String outputValue = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -229,10 +231,11 @@ public class dashboard extends AppCompatActivity {
         });
     }
 
-    public void run (String command) throws IOException {
+    public static void run(String command) throws IOException {
         String hostname = "raspberrypi23.local";
         String username = "IOT";
         String password = "1234";
+        StringBuilder output = new StringBuilder();
         try
         {
             StrictMode.ThreadPolicy policy = new
@@ -256,7 +259,9 @@ public class dashboard extends AppCompatActivity {
                 if (line == null)
                     break;
                 System.out.println(line);
+                output.append(line);
             }
+            outputValue = output.toString();
             /* Show exit status, if available (otherwise "null") */
             System.out.println("ExitCode: " + sess.getExitStatus());
             sess.close(); // Close this session
@@ -267,5 +272,9 @@ public class dashboard extends AppCompatActivity {
             //System.exit(2);
             throw new IOException("Error: Connection to Raspberry Pi failed.");
         }
+    }
+
+    public static String getOutputValue() {
+        return outputValue;
     }
 }
