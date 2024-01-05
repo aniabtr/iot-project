@@ -12,6 +12,8 @@ import android.widget.TextView;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity2 extends AppCompatActivity {
 
@@ -60,7 +62,11 @@ public class MainActivity2 extends AppCompatActivity {
                 irrigationData.setCoverageAreaValue(coverageAreaValue);
                 irrigationData.setNumberOfIrrigationWeeks(numberOfIrrigationWeeks);
                 irrigationData.setTimestamp(new Timestamp(System.currentTimeMillis()));
-
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(irrigationData.getTimestamp());
+                calendar.add(Calendar.WEEK_OF_YEAR, numberOfIrrigationWeeks);
+                Date endDate = calendar.getTime();
+                irrigationData.setEndDate(endDate);
                 // create data string
                 String dataToSave =
                         irrigationData.getSelectedCrop() + "\n" +
@@ -68,7 +74,8 @@ public class MainActivity2 extends AppCompatActivity {
                         irrigationData.getSelectedCoverageAreaType() + "\n" +
                         irrigationData.getCoverageAreaValue() + "\n" +
                         irrigationData.getNumberOfIrrigationWeeks() + "\n" +
-                        irrigationData.getTimestamp();
+                        irrigationData.getTimestamp() + "\n" +
+                        irrigationData.getEndDate();
 
                 try {
                     // save data to file
@@ -77,7 +84,7 @@ public class MainActivity2 extends AppCompatActivity {
                     fos.close();
 
                     // schedule daily irrigation using scheduler
-                    IrrigationScheduler.scheduleDailyIrrigation(MainActivity2.this);
+                    IrrigationScheduler.scheduleDailyIrrigation(MainActivity2.this, irrigationData);
 
                     // transition to dashboard after saving
                     Intent intent = new Intent(MainActivity2.this, dashboard.class);

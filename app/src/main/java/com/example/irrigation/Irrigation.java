@@ -11,6 +11,7 @@ public class Irrigation {
     private float coverageAreaValue;
     private int numberOfIrrigationWeeks;
     private Date timestamp;
+    private Date endDate;
 
     // TODO constructor
 
@@ -63,4 +64,9 @@ public class Irrigation {
     }
 
 
+    public Object getEndDate() { return endDate;
+    }
+
+    public void setEndDate(Date endDate) { this.endDate = endDate;
+    }
 }
