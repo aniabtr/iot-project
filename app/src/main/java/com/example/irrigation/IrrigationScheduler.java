@@ -9,12 +9,13 @@ import java.util.Calendar;
 
 public class IrrigationScheduler {
 
-    public static void scheduleDailyIrrigation(Context context) {
+    public static void scheduleDailyIrrigation(Context context, Irrigation irrigationData) {
         // get AlarmManager instance
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         // PendingIntent for the BroadcastReceiver
         Intent intent = new Intent(context, IrrigationBroadcastReceiver.class);
+        intent.putExtra("END_DATE", irrigationData.getEndDate().toString());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE); // flag changed from 0 to avoid error
 
         // time for the alarm to trigger
