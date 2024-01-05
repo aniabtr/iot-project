@@ -2,9 +2,12 @@ package com.example.irrigation;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,12 +20,17 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.Session;
+import ch.ethz.ssh2.StreamGobbler;
 
 public class dashboard extends AppCompatActivity {
 
@@ -32,7 +40,10 @@ public class dashboard extends AppCompatActivity {
     String filename = "irrigationinfo.txt";
     private SimpleDateFormat dateFormat;
     private Switch switchManualControl;
-    private TextView selectedCrop, waterFlowRate, coverageAreaType, coverageAreaValue, weeks, timestampCreation, timestampLastIrrigation;
+    private TextView selectedCrop, waterFlowRate, coverageAreaType, coverageAreaValue, weeks, timestampCreation;
+
+    private boolean piFailure = false;
+    private boolean isInternalChange = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +98,6 @@ public class dashboard extends AppCompatActivity {
         coverageAreaValue = findViewById(R.id.textViewCoverageAreaValue);
         weeks = findViewById(R.id.textViewWeeks);
         timestampCreation = findViewById(R.id.textViewTimestampCreation);
-        timestampLastIrrigation = findViewById(R.id.textViewTimestampLastIrrigation);
 
         String displayText;
         displayText = "Ongoing Irrigation:";
@@ -104,8 +114,6 @@ public class dashboard extends AppCompatActivity {
         weeks.setText(displayText);
         displayText = "Created:\n" + irrigationData.getTimestamp();
         timestampCreation.setText(displayText);
-        displayText = "Last irrigated:\n"; // TODO
-        timestampLastIrrigation.setText(displayText);
 
 
         /*
@@ -159,17 +167,105 @@ public class dashboard extends AppCompatActivity {
             switchManualControl.setText("Pump is off");
         }
 
+
         switchManualControl.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    switchManualControl.setText("Pump is on");
-                    // TODO start irrigation, maybe with timer
-                } else {
-                    switchManualControl.setText("Pump is off");
-                    // TODO stop irrigation
+                if (!isInternalChange) {
+                    if (isChecked) {
+                        // start irrigation
+                        new AsyncTask<Integer, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(Integer... params) {
+                                try {
+                                    run("tdtool --on 1"); // TODO check if it was tdtool --on 1
+                                    switchManualControl.setText("Pump is on");
+                                } catch (IOException | RuntimeException e) {
+                                    piFailure = true;
+                                }
+                                return null;
+                            }
+                            @Override
+                            protected void onPostExecute(Void v) {
+                                if (piFailure) {
+                                    Toast.makeText(dashboard.this, "Connection to Raspberry Pi failed", Toast.LENGTH_SHORT).show();
+                                    // Change switch back without triggering listener
+                                    isInternalChange = true;
+                                    switchManualControl.setChecked(false);
+                                    isInternalChange = false;
+                                    piFailure = false;
+                                }
+                            }
+                        }.execute(1);
+                    } else {
+                        // stop irrigation
+                        new AsyncTask<Integer, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(Integer... params) {
+                                try {
+                                    run("tdtool --off 1");
+                                    switchManualControl.setText("Pump is off");
+                                } catch (IOException | RuntimeException e) {
+                                    piFailure = true;
+                                }
+                                return null;
+                            }
+                            @Override
+                            protected void onPostExecute(Void v) {
+                                if (piFailure) {
+                                    Toast.makeText(dashboard.this, "Connection to Raspberry Pi failed", Toast.LENGTH_SHORT).show();
+                                    // Change switch back without triggering listener
+                                    isInternalChange = true;
+                                    switchManualControl.setChecked(true);
+                                    isInternalChange = false;
+                                    piFailure = false;
+                                }
+                            }
+                        }.execute(1);
+                    }
                 }
             }
         });
+    }
+
+    public void run (String command) throws IOException {
+        String hostname = "raspberrypi23.local";
+        String username = "IOT";
+        String password = "1234";
+        try
+        {
+            StrictMode.ThreadPolicy policy = new
+                    StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+            Connection conn = new Connection(hostname); //init connection
+            conn.connect(); //start connection to the hostname
+            boolean isAuthenticated = conn.authenticateWithPassword(username,
+                    password);
+            if (!isAuthenticated)
+                throw new IOException("Authentication failed.");
+            Session sess = conn.openSession();
+            sess.execCommand(command);
+            InputStream stdout = new StreamGobbler(sess.getStdout());
+            BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+            //reads text
+            while (true){
+                String line = br.readLine(); // read line
+                if (line == null)
+                    break;
+                System.out.println(line);
+            }
+            /* Show exit status, if available (otherwise "null") */
+            System.out.println("ExitCode: " + sess.getExitStatus());
+            sess.close(); // Close this session
+            conn.close();
+        }
+        catch (IOException e)
+        { e.printStackTrace(System.err);
+            //System.exit(2);
+            throw new IOException("Error: Connection to Raspberry Pi failed.");
+        }
     }
 }

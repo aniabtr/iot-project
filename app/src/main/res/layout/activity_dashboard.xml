@@ -131,18 +131,6 @@
                 app:layout_constraintVertical_bias="0.525" />
 
             <TextView
-                android:id="@+id/textViewTimestampLastIrrigation"
-                android:layout_width="236dp"
-                android:layout_height="38dp"
-                android:text="TextView"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.257"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.6" />
-
-            <TextView
                 android:id="@+id/textViewWaterFlow"
                 android:layout_width="236dp"
                 android:layout_height="38dp"

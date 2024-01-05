@@ -42,4 +42,6 @@
         <receiver android:name=".IrrigationBroadcastReceiver" />
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
 </manifest>
