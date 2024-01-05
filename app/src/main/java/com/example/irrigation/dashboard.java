@@ -181,9 +181,8 @@ public class dashboard extends AppCompatActivity {
                             @Override
                             protected Void doInBackground(Integer... params) {
                                 try {
-                                    run("tdtool --on 1"); // TODO check if it was tdtool --on 1
-                                    switchManualControl.setText("Pump is on");
-                                } catch (IOException | RuntimeException e) {
+                                    run("tdtool --on 1");
+                                } catch (IOException e) {
                                     piFailure = true;
                                 }
                                 return null;
@@ -197,6 +196,8 @@ public class dashboard extends AppCompatActivity {
                                     switchManualControl.setChecked(false);
                                     isInternalChange = false;
                                     piFailure = false;
+                                } else {
+                                    switchManualControl.setText("Pump is on");
                                 }
                             }
                         }.execute(1);
@@ -207,7 +208,6 @@ public class dashboard extends AppCompatActivity {
                             protected Void doInBackground(Integer... params) {
                                 try {
                                     run("tdtool --off 1");
-                                    switchManualControl.setText("Pump is off");
                                 } catch (IOException | RuntimeException e) {
                                     piFailure = true;
                                 }
@@ -222,6 +222,8 @@ public class dashboard extends AppCompatActivity {
                                     switchManualControl.setChecked(true);
                                     isInternalChange = false;
                                     piFailure = false;
+                                } else {
+                                    switchManualControl.setText("Pump is off");
                                 }
                             }
                         }.execute(1);
