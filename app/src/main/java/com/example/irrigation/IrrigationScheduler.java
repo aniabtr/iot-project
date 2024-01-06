@@ -15,9 +15,12 @@ public class IrrigationScheduler {
 
         // PendingIntent for the BroadcastReceiver
         Intent intent = new Intent(context, IrrigationBroadcastReceiver.class);
+        intent.putExtra("CROP_TYPE", irrigationData.getSelectedCrop());
+        intent.putExtra("WATER_FLOW_RATE", irrigationData.getWaterFlowRate());
+        intent.putExtra("COVERAGE_AREA_VALUE", irrigationData.getCoverageAreaValue());
         intent.putExtra("END_DATE", irrigationData.getEndDate().toString());
+        intent.putExtra("NUMBER_WEEKS", irrigationData.getNumberOfIrrigationWeeks());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE);
-
         // time for the alarm to trigger
         //Calendar calendar = Calendar.getInstance();
         //calendar.setTimeInMillis(System.currentTimeMillis());

@@ -31,6 +31,8 @@ import java.util.Locale;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 public class dashboard extends AppCompatActivity {
 
@@ -53,12 +55,12 @@ public class dashboard extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         // Retrieve the values from the Intent
-        //Intent intent = getIntent();
-        //String selectedCrop = intent.getStringExtra("SELECTED_CROP");
-        //String waterFlowRate = intent.getStringExtra("WATER_FLOW_RATE");
-        //String selectedCoverageAreaType = intent.getStringExtra("SELECTED_COVERAGE_AREA_TYPE");
-        //String coverageAreaValue = intent.getStringExtra("COVERAGE_AREA_VALUE");
-        //String numberOfIrrigationWeeks = intent.getStringExtra("NUMBER_OF_IRRIGATION_WEEKS");
+        // Intent intent = getIntent();
+        // String selectedCrop = intent.getStringExtra("SELECTED_CROP");
+        // String waterFlowRate = intent.getStringExtra("WATER_FLOW_RATE");
+        // String selectedCoverageAreaType = intent.getStringExtra("SELECTED_COVERAGE_AREA_TYPE");
+        // String coverageAreaValue = intent.getStringExtra("COVERAGE_AREA_VALUE");
+        // String numberOfIrrigationWeeks = intent.getStringExtra("NUMBER_OF_IRRIGATION_WEEKS");
 
         try {
             FileInputStream fis = openFileInput(filename);
@@ -97,7 +99,6 @@ public class dashboard extends AppCompatActivity {
             irrigationData.setTriggerTimeMillis(Long.parseLong(triggerTimeMillisStr));
             irrigationData.setIntervalMillis(Long.parseLong(intervalMillisStr));
 
-
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
         }
@@ -131,9 +132,9 @@ public class dashboard extends AppCompatActivity {
         IrrigationScheduler.loadSavedIrrigation(dashboard.this, irrigationData, irrigationData.getTriggerTimeMillis(), irrigationData.getIntervalMillis());
 
         cancel = findViewById(R.id.cancelIrrigation);
-        cancel.setOnClickListener( new View.OnClickListener() {
+        cancel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick( View v) {
+            public void onClick(View v) {
                 // erase content of saved file
                 try {
                     FileOutputStream fos = openFileOutput(filename, Context.MODE_PRIVATE);
@@ -167,69 +168,74 @@ public class dashboard extends AppCompatActivity {
             switchManualControl.setText("Pump is off");
         }
 
-
         switchManualControl.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @SuppressLint("StaticFieldLeak")
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (!isInternalChange) {
-                    if (isChecked) {
-                        // start irrigation
-                        new AsyncTask<Integer, Void, Void>() {
-                            @Override
-                            protected Void doInBackground(Integer... params) {
-                                try {
-                                    run("tdtool --on 1");
-                                } catch (IOException e) {
-                                    piFailure = true;
-                                }
-                                return null;
-                            }
-                            @Override
-                            protected void onPostExecute(Void v) {
-                                if (piFailure) {
-                                    Toast.makeText(dashboard.this, "Connection to Raspberry Pi failed", Toast.LENGTH_SHORT).show();
-                                    // Change switch back without triggering listener
-                                    isInternalChange = true;
-                                    switchManualControl.setChecked(false);
-                                    isInternalChange = false;
-                                    piFailure = false;
-                                } else {
-                                    switchManualControl.setText("Pump is on");
-                                }
-                            }
-                        }.execute(1);
-                    } else {
-                        // stop irrigation
-                        new AsyncTask<Integer, Void, Void>() {
-                            @Override
-                            protected Void doInBackground(Integer... params) {
-                                try {
-                                    run("tdtool --off 1");
-                                } catch (IOException | RuntimeException e) {
-                                    piFailure = true;
-                                }
-                                return null;
-                            }
-                            @Override
-                            protected void onPostExecute(Void v) {
-                                if (piFailure) {
-                                    Toast.makeText(dashboard.this, "Connection to Raspberry Pi failed", Toast.LENGTH_SHORT).show();
-                                    // Change switch back without triggering listener
-                                    isInternalChange = true;
-                                    switchManualControl.setChecked(true);
-                                    isInternalChange = false;
-                                    piFailure = false;
-                                } else {
-                                    switchManualControl.setText("Pump is off");
-                                }
-                            }
-                        }.execute(1);
-                    }
+                    // Display confirmation dialog
+                    showConfirmationDialog(isChecked);
                 }
             }
         });
     }
+
+    // ... (your existing code)
+
+    private void showConfirmationDialog(final boolean isChecked) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(isChecked ? "Turn Pump On" : "Turn Pump Off")
+                .setMessage(isChecked ? "Are you sure you want to turn the pump on?" : "Are you sure you want to turn the pump off?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // User clicked Yes, perform the action
+                        performSwitchAction(isChecked);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // User clicked No, change switch back without triggering listener
+                        isInternalChange = true;
+                        switchManualControl.setChecked(!isChecked);
+                        isInternalChange = false;
+                    }
+                })
+                .show();
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void performSwitchAction(final boolean isChecked) {
+        new AsyncTask<Integer, Void, Void>() {
+            @Override
+            protected Void doInBackground(Integer... params) {
+                try {
+                    if (isChecked) {
+                        run("tdtool --on 1");
+                    } else {
+                        run("tdtool --off 1");
+                    }
+                } catch (IOException e) {
+                    piFailure = true;
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                if (piFailure) {
+                    Toast.makeText(dashboard.this, "Connection to Raspberry Pi failed", Toast.LENGTH_SHORT).show();
+                    // Change switch back without triggering listener
+                    isInternalChange = true;
+                    switchManualControl.setChecked(!isChecked);
+                    isInternalChange = false;
+                    piFailure = false;
+                } else {
+                    switchManualControl.setText(isChecked ? "Pump is on" : "Pump is off");
+                }
+            }
+        }.execute(1);
+    }
+
 
     public static void run(String command) throws IOException {
         String hostname = "raspberrypi23.local";
