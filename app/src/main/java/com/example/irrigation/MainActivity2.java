@@ -67,6 +67,13 @@ public class MainActivity2 extends AppCompatActivity {
                 calendar.add(Calendar.WEEK_OF_YEAR, numberOfIrrigationWeeks);
                 Date endDate = calendar.getTime();
                 irrigationData.setEndDate(endDate);
+
+                // schedule daily irrigation using scheduler
+                long[] timeArray = IrrigationScheduler.scheduleDailyIrrigation(MainActivity2.this, irrigationData);
+
+                irrigationData.setTriggerTimeMillis(timeArray[0]);
+                irrigationData.setIntervalMillis(timeArray[1]);
+
                 // create data string
                 String dataToSave =
                         irrigationData.getSelectedCrop() + "\n" +
@@ -75,16 +82,16 @@ public class MainActivity2 extends AppCompatActivity {
                         irrigationData.getCoverageAreaValue() + "\n" +
                         irrigationData.getNumberOfIrrigationWeeks() + "\n" +
                         irrigationData.getTimestamp() + "\n" +
-                        irrigationData.getEndDate();
+                        irrigationData.getEndDate() + "\n" +
+                        irrigationData.getTriggerTimeMillis() + "\n" +
+                        irrigationData.getIntervalMillis();
 
                 try {
+
                     // save data to file
                     FileOutputStream fos = openFileOutput(filename, Context.MODE_PRIVATE);
                     fos.write(dataToSave.getBytes());
                     fos.close();
-
-                    // schedule daily irrigation using scheduler
-                    IrrigationScheduler.scheduleDailyIrrigation(MainActivity2.this, irrigationData);
 
                     // transition to dashboard after saving
                     Intent intent = new Intent(MainActivity2.this, dashboard.class);

@@ -71,6 +71,9 @@ public class dashboard extends AppCompatActivity {
             String coverageAreaValueStr = bufferedReader.readLine();
             String numberOfIrrigationWeeksStr = bufferedReader.readLine();
             String timestampStr = bufferedReader.readLine();
+            String endDateStr = bufferedReader.readLine();
+            String triggerTimeMillisStr = bufferedReader.readLine();
+            String intervalMillisStr = bufferedReader.readLine();
 
             // Create Irrigation instance and set parsed values
             irrigationData = new Irrigation();
@@ -84,8 +87,15 @@ public class dashboard extends AppCompatActivity {
                 irrigationData.setTimestamp(dateFormat.parse(timestampStr));
             } catch (ParseException e) {
                 e.printStackTrace();
-
             }
+            dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+            try {
+                irrigationData.setEndDate(dateFormat.parse(endDateStr));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            irrigationData.setTriggerTimeMillis(Long.parseLong(triggerTimeMillisStr));
+            irrigationData.setIntervalMillis(Long.parseLong(intervalMillisStr));
 
 
         } catch (IOException | NumberFormatException e) {
@@ -117,20 +127,8 @@ public class dashboard extends AppCompatActivity {
         displayText = "Created:\n" + irrigationData.getTimestamp();
         timestampCreation.setText(displayText);
 
-
-        /*
-        // Use the values as needed (e.g., display in TextViews, perform calculations, etc.)
-        dataField = findViewById(R.id.textViewData);
-        String displayText = "Ongoing irrigation:" +
-                "\n" +
-                "\nSelected Crop: " + irrigationData.getSelectedCrop() +
-                "\nWater Flow Rate: " + irrigationData.getWaterFlowRate() +
-                "\nCoverage Area Type: " + irrigationData.getSelectedCoverageAreaType() +
-                "\nCoverage Area Value: " + irrigationData.getCoverageAreaValue() +
-                "\nNumber of Irrigation Weeks: " + irrigationData.getNumberOfIrrigationWeeks() +
-                "\nTimestamp: " + irrigationData.getTimestamp();
-        dataField.setText(displayText);
-        */
+        // recreate scheduler
+        IrrigationScheduler.loadSavedIrrigation(dashboard.this, irrigationData, irrigationData.getTriggerTimeMillis(), irrigationData.getIntervalMillis());
 
         cancel = findViewById(R.id.cancelIrrigation);
         cancel.setOnClickListener( new View.OnClickListener() {

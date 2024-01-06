@@ -12,8 +12,9 @@ public class Irrigation {
     private int numberOfIrrigationWeeks;
     private Date timestamp;
     private Date endDate;
+    private long triggerTimeMillis;
+    private long intervalMillis;
 
-    // TODO constructor
 
     public String getSelectedCrop() {
         return selectedCrop;
@@ -68,5 +69,21 @@ public class Irrigation {
     }
 
     public void setEndDate(Date endDate) { this.endDate = endDate;
+    }
+
+    public long getTriggerTimeMillis() {
+        return triggerTimeMillis;
+    }
+
+    public long getIntervalMillis() {
+        return intervalMillis;
+    }
+
+    public void setTriggerTimeMillis(long triggerTimeMillis) {
+        this.triggerTimeMillis = triggerTimeMillis;
+    }
+
+    public void setIntervalMillis(long intervalMillis) {
+        this.intervalMillis = intervalMillis;
     }
 }
