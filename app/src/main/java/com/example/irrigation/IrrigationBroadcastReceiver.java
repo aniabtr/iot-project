@@ -36,18 +36,25 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
         Date today = calendar.getTime();
         if (today.compareTo(endDate) <= 0) {
             new AsyncTask<Integer, Void, Void>() {
+                boolean failedPrecipitation;
                 @Override
                 protected Void doInBackground(Integer... params) {
                     try {
                         dashboard.run("python3 runFiles/precipitation.py");
+                        failedPrecipitation = false;
                     } catch (IOException | RuntimeException e) {
-
+                        failedPrecipitation = true;
                     }
                     return null;
                 }
                 @Override
                 protected void onPostExecute(Void v) {
-                    Toast.makeText(context, "Expected precipitation in Hobart: " + dashboard.getOutputValue(), Toast.LENGTH_SHORT).show(); // dashboard.getOutputValue() gets the value from python script
+                    if (failedPrecipitation){
+                        Toast.makeText(context, "Couldn't access Raspberry Pi!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Expected precipitation in Hobart: " + dashboard.getOutputValue(), Toast.LENGTH_SHORT).show(); // dashboard.getOutputValue() gets the value from python script
+                    }
+
                 }
             }.execute(1);
         }
