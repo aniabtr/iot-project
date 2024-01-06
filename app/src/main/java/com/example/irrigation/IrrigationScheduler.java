@@ -30,8 +30,9 @@ public class IrrigationScheduler {
         //calendar.set(Calendar.HOUR_OF_DAY, 8); // currently 8:00 am
         //calendar.set(Calendar.MINUTE, 0);
         long triggerTimeMillis = System.currentTimeMillis();
-        long intervalMillis = 180 * 1000; // every 3 minutes
-        // long intervalMillis = 86400 * 1000; // every 24 hours
+        long intervalMillis = 86400 * 1000; // every 24 hours
+        // uncomment for testing purposes
+        // long intervalMillis = 180 * 1000; // every 3 minutes
 
         // schedule to repeat every day
         //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);

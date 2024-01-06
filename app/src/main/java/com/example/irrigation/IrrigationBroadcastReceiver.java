@@ -52,7 +52,9 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
                 @Override
                 protected Void doInBackground(Integer... params) {
                     try {
-                        run("python3 runFiles/test.py");
+                        run("python3 runFiles/precipitation.py");
+                        // uncomment for testing purposes with precipitation value 0
+                        // run("python3 runFiles/test.py");
                     } catch (IOException | RuntimeException e) {
                         Log.d("IrrigationException", "could not run python3 runFiles/precipitation.py");
                     }
