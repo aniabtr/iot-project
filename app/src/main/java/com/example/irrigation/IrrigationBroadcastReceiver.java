@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 public class IrrigationBroadcastReceiver extends BroadcastReceiver {
 
@@ -24,8 +25,10 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // called when the alarm fires
         Toast.makeText(context, "Performing irrigation task...", Toast.LENGTH_SHORT).show();
+
         // Create an array to store the evaporation values for each month in Hobart
         float[] evaporationPerMonth = {6.2f, 5.4f, 4.2f, 2.8f, 1.9f, 1.3f, 1.4f, 2f, 3f, 4.1f, 4.9f, 5.9f};
+
         // Get the current month
         Calendar calendar = Calendar.getInstance();
         int currentMonth = calendar.get(Calendar.MONTH);
@@ -43,26 +46,34 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
             e.printStackTrace();
         }
         Date today = calendar.getTime();
-        //check if it is not end date
+
         if (today.compareTo(endDate) <= 0) {
             new AsyncTask<Integer, Void, Void>() {
                 @Override
                 protected Void doInBackground(Integer... params) {
                     try {
-                        run("python3 runFiles/precipitation.py");
+                        run("python3 runFiles/test.py");
                     } catch (IOException | RuntimeException e) {
-
+                        Log.d("IrrigationException", "could not run python3 runFiles/precipitation.py");
                     }
                     return null;
                 }
                 @Override
                 protected void onPostExecute(Void v) {
+                    if (dashboard.getOutputValue() == null) {
+                        Log.d("D", "IrrigationBroadcastReceiver: Output value from dashboard is null");
+                        Toast.makeText(context, "Couldn't get output from Pi", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     float precipitationValue = Float.parseFloat(dashboard.getOutputValue());
                     float irrigationPerSeason;
                     float irrigationPerDay;
                     float realIrrigation;
                     float irrigationTime;
-                    switch (cropType) {
+                    if (cropType == null) {
+                        Log.d("D", "cropType == null");
+                    }
+                    switch (Objects.requireNonNull(cropType)) {
                         case "Potatoes":
                         case "Carrots":
                             irrigationPerSeason = coverageAreaValue * 350000000 / 107639;
@@ -102,9 +113,9 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
                                 try {
                                     //start irrigation
                                     run("tdtool --on 1");
+                                    Thread.sleep((long) (irrigationTime * 60 * 1000));
                                     //wait for the irrigation time to end
                                     run("tdtool --off 1");
-                                    Thread.sleep((long) (irrigationTime * 60 * 1000));
                                     Toast.makeText(context, "Irrigation finished for today", Toast.LENGTH_SHORT).show();
                                 } catch (IOException | RuntimeException e) {
                                 } catch (InterruptedException e) {
@@ -113,15 +124,12 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
                                 return null;
                             }
 
-
-
                         }.execute(1);
                     } else{        Toast.makeText(context, "No irrigation today due to precipitation", Toast.LENGTH_SHORT).show();
                     }
                 }
             }.execute(1);
         }
-
     }
 }
 

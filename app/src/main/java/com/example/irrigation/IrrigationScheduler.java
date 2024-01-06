@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -29,7 +30,8 @@ public class IrrigationScheduler {
         //calendar.set(Calendar.HOUR_OF_DAY, 8); // currently 8:00 am
         //calendar.set(Calendar.MINUTE, 0);
         long triggerTimeMillis = System.currentTimeMillis();
-        long intervalMillis = 60 * 1000; // ever 60 seconds
+        long intervalMillis = 180 * 1000; // every 3 minutes
+        // long intervalMillis = 86400 * 1000; // every 24 hours
 
         // schedule to repeat every day
         //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
@@ -48,7 +50,11 @@ public class IrrigationScheduler {
 
         // PendingIntent for the BroadcastReceiver
         Intent intent = new Intent(context, IrrigationBroadcastReceiver.class);
+        intent.putExtra("CROP_TYPE", irrigationData.getSelectedCrop());
+        intent.putExtra("WATER_FLOW_RATE", irrigationData.getWaterFlowRate());
+        intent.putExtra("COVERAGE_AREA_VALUE", irrigationData.getCoverageAreaValue());
         intent.putExtra("END_DATE", irrigationData.getEndDate().toString());
+        intent.putExtra("NUMBER_WEEKS", irrigationData.getNumberOfIrrigationWeeks());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE);
 
         // schedule to repeat every day

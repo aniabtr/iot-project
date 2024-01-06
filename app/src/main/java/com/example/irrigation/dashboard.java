@@ -180,8 +180,6 @@ public class dashboard extends AppCompatActivity {
         });
     }
 
-    // ... (your existing code)
-
     private void showConfirmationDialog(final boolean isChecked) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(isChecked ? "Turn Pump On" : "Turn Pump Off")
@@ -282,5 +280,9 @@ public class dashboard extends AppCompatActivity {
 
     public static String getOutputValue() {
         return outputValue;
+    }
+
+    public void setInternalChange(boolean internalChange) {
+        isInternalChange = internalChange;
     }
 }
