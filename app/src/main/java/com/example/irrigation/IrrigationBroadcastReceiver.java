@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
-
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class IrrigationBroadcastReceiver extends BroadcastReceiver {
-
+    String filename = "irrigationinfo.txt";
     @SuppressLint("StaticFieldLeak")
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -142,6 +142,17 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
                     }
                 }
             }.execute(1);
+        }else{
+            // erase content of saved file after the irrigation weeks end
+            try {
+                FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
+                fos.write("".getBytes());
+                fos.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            }
         }
     }
 }
