@@ -115,15 +115,26 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
                                 try {
                                     //start irrigation
                                     run("tdtool --on 1");
-                                    Thread.sleep((long) (irrigationTime * 60 * 1000));
-                                    //wait for the irrigation time to end
-                                    run("tdtool --off 1");
-                                    Toast.makeText(context, "Irrigation finished for today", Toast.LENGTH_SHORT).show();
                                 } catch (IOException | RuntimeException e) {
-                                } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
                                 return null;
+                            }
+                            protected void onPostExecute(Void v) {
+                                //wait for the irrigation time to end
+                                try {
+                                    Toast.makeText(context, "Automatic irrigation turned on!", Toast.LENGTH_SHORT).show();
+                                    // displayCurrentlyIrrigatingOn();
+                                    Thread.sleep((long) (irrigationTime * 60 * 1000));
+                                    //stop irrigation
+                                    run("tdtool --off 1");
+                                    Toast.makeText(context, "Automatic irrigation turned off!", Toast.LENGTH_SHORT).show();
+                                    // displayCurrentlyIrrigatingOff();
+                                    Toast.makeText(context, "Irrigation finished for today", Toast.LENGTH_SHORT).show();
+                                } catch (IOException | InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+
                             }
 
                         }.execute(1);
