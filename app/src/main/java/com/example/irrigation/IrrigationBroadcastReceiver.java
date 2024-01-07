@@ -27,7 +27,7 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
         Toast.makeText(context, "Performing irrigation task...", Toast.LENGTH_SHORT).show();
 
         // Create an array to store the evaporation values for each month in Hobart
-        float[] evaporationPerMonth = {6.2f, 5.4f, 4.2f, 2.8f, 1.9f, 1.3f, 1.4f, 2f, 3f, 4.1f, 4.9f, 5.9f};
+        float[] evaporationPerMonth = {57.6f, 50.2f, 39f, 26f, 17.6f, 12.1f, 13f, 18.6f, 27.9f, 38f, 45.5f, 54.8f};
 
         // Get the current month
         Calendar calendar = Calendar.getInstance();
@@ -91,7 +91,7 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
                     }
                     int numberOfDays=numberOfWeeks*7;
                     irrigationPerDay = irrigationPerSeason /numberOfDays;
-                    realIrrigation = irrigationPerDay + evaporationPerMonth[currentMonth] - precipitationValue;
+                    realIrrigation = irrigationPerDay + evaporationPerMonth[currentMonth]*coverageAreaValue - precipitationValue;
                     irrigationTime = realIrrigation / waterFlowRate;
 
                     // Log the calculated values
