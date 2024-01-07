@@ -54,11 +54,6 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"/>
 
-    <TextView
-        android:id="@+id/textViewCurrentlyIrrigating"
-        style="@style/DashboardTextView"
-        android:layout_marginBottom="8dp"/>
-
     <Button
         android:id="@+id/cancelIrrigation"
         android:layout_width="match_parent"

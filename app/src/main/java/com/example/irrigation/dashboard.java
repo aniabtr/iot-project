@@ -43,8 +43,6 @@ public class dashboard extends AppCompatActivity {
     private SimpleDateFormat dateFormat;
     private Switch switchManualControl;
     private TextView selectedCrop, waterFlowRate, coverageAreaType, coverageAreaValue, weeks, timestampCreation;
-    @SuppressLint("StaticFieldLeak")
-    private static TextView currentlyIrrigating;
 
     private boolean piFailure = false;
     private boolean isInternalChange = false;
@@ -113,7 +111,6 @@ public class dashboard extends AppCompatActivity {
         coverageAreaValue = findViewById(R.id.textViewCoverageAreaValue);
         weeks = findViewById(R.id.textViewWeeks);
         timestampCreation = findViewById(R.id.textViewTimestampCreation);
-        currentlyIrrigating = findViewById(R.id.textViewCurrentlyIrrigating);
 
         String displayText;
         displayText = "Ongoing Irrigation:";
@@ -130,7 +127,6 @@ public class dashboard extends AppCompatActivity {
         weeks.setText(displayText);
         displayText = "Created:\n" + irrigationData.getTimestamp();
         timestampCreation.setText(displayText);
-        currentlyIrrigating.setText("");
 
         // recreate scheduler
         IrrigationScheduler.loadSavedIrrigation(dashboard.this, irrigationData, irrigationData.getTriggerTimeMillis(), irrigationData.getIntervalMillis());
@@ -284,18 +280,5 @@ public class dashboard extends AppCompatActivity {
 
     public static String getOutputValue() {
         return outputValue;
-    }
-
-    public void setInternalChange(boolean internalChange) {
-        isInternalChange = internalChange;
-    }
-
-    public static void displayCurrentlyIrrigatingOn() {
-        Log.d("D", "automatic irrigation on!");
-        currentlyIrrigating.setText("Irrigation On!");
-    }
-
-    public static void displayCurrentlyIrrigatingOff() {
-        currentlyIrrigating.setText("");
     }
 }
