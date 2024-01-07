@@ -124,6 +124,8 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
                                 try {
                                     //wait for the irrigation time to end
                                     Toast.makeText(context, "Automatic irrigation turned on!", Toast.LENGTH_SHORT).show();
+                                    //for testing
+                                    //Thread.sleep((long) (60 * 1000));
                                     Thread.sleep((long) (irrigationTime * 60 * 1000));
                                     //stop irrigation
                                     run("tdtool --off 1");
