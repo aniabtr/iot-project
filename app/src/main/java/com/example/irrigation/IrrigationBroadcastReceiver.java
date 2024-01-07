@@ -23,9 +23,6 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
     @SuppressLint("StaticFieldLeak")
     @Override
     public void onReceive(Context context, Intent intent) {
-        // called when the alarm fires
-        Toast.makeText(context, "Performing irrigation task...", Toast.LENGTH_SHORT).show();
-
         // Create an array to store the evaporation values for each month in Hobart
         float[] evaporationPerMonth = {57.6f, 50.2f, 39f, 26f, 17.6f, 12.1f, 13f, 18.6f, 27.9f, 38f, 45.5f, 54.8f};
 
@@ -49,6 +46,7 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
 
         if (today.compareTo(endDate) <= 0) {
             new AsyncTask<Integer, Void, Void>() {
+                boolean noPiConnection = false;
                 @Override
                 protected Void doInBackground(Integer... params) {
                     try {
@@ -57,89 +55,95 @@ public class IrrigationBroadcastReceiver extends BroadcastReceiver {
                         // run("python3 runFiles/test.py");
                     } catch (IOException | RuntimeException e) {
                         Log.d("IrrigationException", "could not run python3 runFiles/precipitation.py");
+                        noPiConnection = true;
                     }
                     return null;
                 }
                 @Override
                 protected void onPostExecute(Void v) {
-                    if (dashboard.getOutputValue() == null) {
-                        Log.d("D", "IrrigationBroadcastReceiver: Output value from dashboard is null");
-                        Toast.makeText(context, "Couldn't get output from Pi", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    float precipitationValue = Float.parseFloat(dashboard.getOutputValue());
-                    float irrigationPerSeason;
-                    float irrigationPerDay;
-                    float realIrrigation;
-                    float irrigationTime;
-                    if (cropType == null) {
-                        Log.d("D", "cropType == null");
-                    }
-                    switch (Objects.requireNonNull(cropType)) {
-                        case "Potatoes":
-                        case "Carrots":
-                            irrigationPerSeason = coverageAreaValue * 350000000 / 107639;
-                            break;
-                        case "Onions":
-                            irrigationPerSeason = coverageAreaValue * 375000000 / 107639;
-                            break;
-                        case "Peas":
-                            irrigationPerSeason = coverageAreaValue * 150000000 / 107639;
-                            break;
-                        default:
-                            irrigationPerSeason = 0.0f;
-                    }
-                    int numberOfDays=numberOfWeeks*7;
-                    irrigationPerDay = irrigationPerSeason /numberOfDays;
-                    realIrrigation = irrigationPerDay + evaporationPerMonth[currentMonth]*coverageAreaValue - precipitationValue;
-                    irrigationTime = realIrrigation / waterFlowRate;
+                    if (!noPiConnection){
+                        if (dashboard.getOutputValue() == null) {
+                            Log.d("D", "IrrigationBroadcastReceiver: Output value from dashboard is null");
+                            Toast.makeText(context, "Couldn't get output from Pi", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        float precipitationValue = Float.parseFloat(dashboard.getOutputValue());
+                        float irrigationPerSeason;
+                        float irrigationPerDay;
+                        float realIrrigation;
+                        float irrigationTime;
+                        if (cropType == null) {
+                            Log.d("D", "cropType == null");
+                        }
+                        switch (Objects.requireNonNull(cropType)) {
+                            case "Potatoes":
+                            case "Carrots":
+                                irrigationPerSeason = coverageAreaValue * 350000000 / 107639;
+                                break;
+                            case "Onions":
+                                irrigationPerSeason = coverageAreaValue * 375000000 / 107639;
+                                break;
+                            case "Peas":
+                                irrigationPerSeason = coverageAreaValue * 150000000 / 107639;
+                                break;
+                            default:
+                                irrigationPerSeason = 0.0f;
+                        }
+                        int numberOfDays=numberOfWeeks*7;
+                        irrigationPerDay = irrigationPerSeason /numberOfDays;
+                        realIrrigation = irrigationPerDay + evaporationPerMonth[currentMonth]*coverageAreaValue - precipitationValue;
+                        irrigationTime = realIrrigation / waterFlowRate;
 
-                    // Log the calculated values
-                    Log.d("Irrigation", "Crop Type: " + cropType);
-                    Log.d("Irrigation", "Water Flow Rate: " + waterFlowRate+ " Liter per minute");
-                    Log.d("Irrigation", "Coverage Area Value: " + coverageAreaValue+ " ft2");
-                    Log.d("Irrigation", "Current Month: " + currentMonth+1);
-                    Log.d("Irrigation", "Number of Weeks: " + numberOfWeeks);
-                    Log.d("Irrigation", "Irrigation Per Season: " + irrigationPerSeason+ " Liter");
-                    Log.d("Irrigation", "Irrigation Per Day: " + irrigationPerDay + " Liter");
-                    Log.d("Irrigation", "Real Irrigation: " + realIrrigation+ " Liter");
-                    Log.d("Irrigation", "Irrigation Time: " + irrigationTime+ " Minutes");
-                    Log.d("Irrigation", "Logic executed ");
+                        // Log the calculated values
+                        Log.d("Irrigation", "Crop Type: " + cropType);
+                        Log.d("Irrigation", "Water Flow Rate: " + waterFlowRate+ " Liter per minute");
+                        Log.d("Irrigation", "Coverage Area Value: " + coverageAreaValue+ " ft2");
+                        Log.d("Irrigation", "Current Month: " + currentMonth+1);
+                        Log.d("Irrigation", "Number of Weeks: " + numberOfWeeks);
+                        Log.d("Irrigation", "Irrigation Per Season: " + irrigationPerSeason+ " Liter");
+                        Log.d("Irrigation", "Irrigation Per Day: " + irrigationPerDay + " Liter");
+                        Log.d("Irrigation", "Real Irrigation: " + realIrrigation+ " Liter");
+                        Log.d("Irrigation", "Irrigation Time: " + irrigationTime+ " Minutes");
+                        Log.d("Irrigation", "Logic executed ");
 
-                    //Toast.makeText(context, "Expected precipitation in Hobart: " + dashboard.getOutputValue(), Toast.LENGTH_SHORT).show(); // dashboard.getOutputValue() gets the value from python script
-                    if (realIrrigation>0) {
-                        //turn on the irrigation
-                        new AsyncTask<Integer, Void, Void>() {
-                            @Override
-                            protected Void doInBackground(Integer... params) {
-                                try {
-                                    //start irrigation
-                                    run("tdtool --on 1");
-                                } catch (IOException | RuntimeException e) {
-                                    throw new RuntimeException(e);
+                        //Toast.makeText(context, "Expected precipitation in Hobart: " + dashboard.getOutputValue(), Toast.LENGTH_SHORT).show(); // dashboard.getOutputValue() gets the value from python script
+                        if (realIrrigation>0) {
+                            // called when the alarm fires
+                            Toast.makeText(context, "Performing irrigation task...", Toast.LENGTH_SHORT).show();
+                            //turn on the irrigation
+                            new AsyncTask<Integer, Void, Void>() {
+                                @Override
+                                protected Void doInBackground(Integer... params) {
+                                    try {
+                                        //start irrigation
+                                        run("tdtool --on 1");
+                                    } catch (IOException | RuntimeException e) {
+
+                                    }
+                                    return null;
                                 }
-                                return null;
-                            }
-                            protected void onPostExecute(Void v) {
-                                try {
-                                    //wait for the irrigation time to end
-                                    Toast.makeText(context, "Automatic irrigation turned on!", Toast.LENGTH_SHORT).show();
-                                    //for testing
-                                    //Thread.sleep((long) (60 * 1000));
-                                    Thread.sleep((long) (irrigationTime * 60 * 1000));
-                                    //stop irrigation
-                                    run("tdtool --off 1");
-                                    Toast.makeText(context, "Automatic irrigation turned off!", Toast.LENGTH_SHORT).show();
-                                    Toast.makeText(context, "Irrigation finished for today", Toast.LENGTH_SHORT).show();
-                                } catch (IOException | InterruptedException e) {
-                                    throw new RuntimeException(e);
+                                protected void onPostExecute(Void v) {
+                                    try {
+                                        //wait for the irrigation time to end
+                                        Toast.makeText(context, "Automatic irrigation turned on!", Toast.LENGTH_SHORT).show();
+                                        //for testing
+                                        Thread.sleep((long) (60 * 1000));
+                                        // Thread.sleep((long) (irrigationTime * 60 * 1000));
+                                        //stop irrigation
+                                        run("tdtool --off 1");
+                                        Toast.makeText(context, "Automatic irrigation turned off!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, "Irrigation finished for today", Toast.LENGTH_SHORT).show();
+                                    } catch (IOException | InterruptedException e) {
+                                    }
                                 }
 
-                            }
-
-                        }.execute(1);
-                    } else{        Toast.makeText(context, "No irrigation today due to precipitation", Toast.LENGTH_SHORT).show();
+                            }.execute(1);
+                        } else{        Toast.makeText(context, "No irrigation today due to precipitation", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(context, "No connection to Pi!", Toast.LENGTH_SHORT).show();
                     }
+                    noPiConnection = false;
                 }
             }.execute(1);
         }else{
